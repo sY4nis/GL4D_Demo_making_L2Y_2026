@@ -22,10 +22,6 @@
 
 /*!\brief identifiant de la géométrie QUAD GL4Dummies */
 static GLuint _quadId = 0;
-#define ECHANTILLONS 1024
-//Screen init
-static GLuint _screen = 0;
-static int _wW = ECHANTILLONS, _wH = 256;
 
 static void _load_texture(GLuint id, const char * filename) {
   SDL_Surface * t;
@@ -243,7 +239,6 @@ void titre(int state) {
   switch(state) {
     case GL4DH_INIT:
     /* INITIALISEZ VOTRE ANIMATION (SES VARIABLES <STATIC>s) */
-    _screen = gl4dpInitScreenWithDimensions(_wW, _wH);
     glGenTextures(1, tex);
     _load_texture(tex[0], "images/titre.jpg");
     pId = gl4duCreateProgram("<vs>shaders/basic.vs", "<fs>shaders/basic.fs", NULL);
