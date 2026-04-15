@@ -239,7 +239,9 @@ void titre(int state) {
   switch(state) {
     case GL4DH_INIT:
     /* INITIALISEZ VOTRE ANIMATION (SES VARIABLES <STATIC>s) */
+    //generation d'une texture
     glGenTextures(1, tex);
+    //charge l'image dans la texture généré
     _load_texture(tex[0], "images/titre.jpg");
     pId = gl4duCreateProgram("<vs>shaders/basic.vs", "<fs>shaders/basic.fs", NULL);
       return;
