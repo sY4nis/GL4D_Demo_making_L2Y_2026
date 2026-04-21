@@ -20,6 +20,17 @@
 #include <GL4D/gl4dp.h>
 #include <SDL_image.h>
 
+// DEMO
+typedef struct{
+  GLfloat x, y;
+} vec2d_t ;
+
+typedef struct {
+  vec2d_t p, v;
+  GLfloat couleur[4];
+} gouttes_t;
+
+
 /*!\brief identifiant de la géométrie QUAD GL4Dummies */
 static GLuint _quadId = 0;
 
@@ -234,11 +245,11 @@ void bleu(int state) {
   }
 }
 
+//DEMO
 void titre(int state) {
   static GLuint tex[1], pId;
   switch(state) {
     case GL4DH_INIT:
-    /* INITIALISEZ VOTRE ANIMATION (SES VARIABLES <STATIC>s) */
     //generation d'une texture
     glGenTextures(1, tex);
     //charge l'image dans la texture généré
@@ -246,13 +257,10 @@ void titre(int state) {
     pId = gl4duCreateProgram("<vs>shaders/basic.vs", "<fs>shaders/basic.fs", NULL);
       return;
     case GL4DH_FREE:
-    /* LIBERER LA MEMOIRE UTILISEE PAR LES <STATIC>s */
       return;
     case GL4DH_UPDATE_WITH_AUDIO:
-    /* METTRE A JOUR VOTRE ANIMATION EN FONCTION DU SON */
       return;
-    default: /* GL4DH_DRAW */
-    /* JOUER L'ANIMATION */
+    default: 
     glDisable(GL_DEPTH_TEST);
     glUseProgram(pId);
     glActiveTexture(GL_TEXTURE0);
@@ -262,8 +270,90 @@ void titre(int state) {
     return;
   }
 }
+void noir(int state) {
+  switch(state) {
+  case GL4DH_INIT:
+    return;
+  case GL4DH_FREE:
+    return;
+  case GL4DH_UPDATE_WITH_AUDIO:
+    return;
+  default: 
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    return;
+  }
+}
+
+void pluie(int state){
+  static gouttes_t * gouttes = NULL;
+  static int nb_gouttes = 500;
+  static GLuint pId, drop; 
+  static double t0 = 0;
+  switch(state) {
+    case GL4DH_INIT:
+    drop = gl4dgGenQuadf();
+    pId = gl4duCreateProgram("<vs>shaders/phy2D.vs", "<fs>shaders/phy2D.fs", NULL);
+    gl4duGenMatrix(GL_FLOAT, "mod");
+    gl4duBindMatrix("mod");
+    gl4duLoadIdentityf();
+    gl4duGenMatrix(GL_FLOAT, "view");
+    gl4duBindMatrix("view");
+    gl4duLoadIdentityf();
+    gl4duGenMatrix(GL_FLOAT, "proj");
+    gl4duBindMatrix("proj");
+    gl4duLoadIdentityf();
+    gl4duOrthof(-1.0f, 1.0f, -1.0f, 1.0f, -10.0f, 10.0f);
+    gouttes = malloc(nb_gouttes * sizeof *gouttes);
+    for(int i = 0; i< nb_gouttes; i++){
+      gouttes[i].p.x =0.89f * gl4dmSURand();
+      gouttes[i].p.y = gl4dmSURand();
+      gouttes[i].v.x = 0.5f * gl4dmSURand();
+      gouttes[i].v.y = -0.8f - 0.4f * gl4dmURand();
+      gouttes[i].couleur[0] = gl4dmURand();
+      gouttes[i].couleur[1] = gl4dmURand();
+      gouttes[i].couleur[2] = gl4dmURand();
+      gouttes[i].couleur[3] = 1.0f;
+    }
+    return;
+  case GL4DH_FREE:
+    free(gouttes);
+    return;
+  case GL4DH_UPDATE_WITH_AUDIO:
+    double t = gl4dhGetTicks() / 1000.0, dt = t - t0;
+    t0 = t;
+    for(int j = 0; j< nb_gouttes;j++){
+      gouttes[j].p.y += gouttes[j].v.y *dt;
+      if(gouttes[j].p.y <= -1.0f) {
+          gouttes[j].p.y = 1.0f;
+          gouttes[j].p.x = gl4dmSURand();
+      }
+    }
+    return;
+  default: /* GL4DH_DRAW */
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT);
+  glUseProgram(pId);
+  gl4duBindMatrix("view");
+  gl4duLoadIdentityf();
+  gl4duBindMatrix("mod");
+  gl4duLoadIdentityf();
+  for(int i = 0; i < nb_gouttes; i++) {
+    gl4duPushMatrix();
+    gl4duTranslatef(gouttes[i].p.x, gouttes[i].p.y, -1.0f);
+    gl4duScalef(0.01f, 0.03f, 0.01f);
+    gl4duSendMatrices();
+    glUniform4fv(glGetUniformLocation(pId, "color"), 1, gouttes[i].couleur);
+    gl4dgDraw(drop);
+    gl4duPopMatrix();
+  }
+  return;
+  }
+}
+
 
 void animationsInit(void) {
   if(!_quadId)
     _quadId = gl4dgGenQuadf();
 }
+
