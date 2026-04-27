@@ -21,6 +21,8 @@
 #include <SDL_image.h>
 
 // DEMO
+#include <limits.h>
+#define ECHANTILLONS 1024
 typedef struct{
   GLfloat x, y;
 } vec2d_t ;
@@ -29,6 +31,8 @@ typedef struct {
   vec2d_t p, v;
   GLfloat couleur[4];
 } gouttes_t;
+// DEMO
+
 
 
 /*!\brief identifiant de la géométrie QUAD GL4Dummies */
@@ -245,7 +249,7 @@ void bleu(int state) {
   }
 }
 
-//DEMO
+// DEMO
 void titre(int state) {
   static GLuint tex[1], pId;
   switch(state) {
@@ -310,20 +314,29 @@ void pluie(int state){
       gouttes[i].p.y = gl4dmSURand();
       gouttes[i].v.x = 0.5f * gl4dmSURand();
       gouttes[i].v.y = -0.8f - 0.4f * gl4dmURand();
-      gouttes[i].couleur[0] = gl4dmURand();
-      gouttes[i].couleur[1] = gl4dmURand();
-      gouttes[i].couleur[2] = gl4dmURand();
-      gouttes[i].couleur[3] = 1.0f;
+      gouttes[i].couleur[0] = 1.0f;
+      gouttes[i].couleur[1] = 1.0f;
+      gouttes[i].couleur[2] = 1.0f;
+      gouttes[i].couleur[3] = 0.5f;
     }
     return;
   case GL4DH_FREE:
     free(gouttes);
     return;
   case GL4DH_UPDATE_WITH_AUDIO:
+    int i, len = ahGetAudioStreamLength();
+    Sint16 *s = (Sint16 *)ahGetAudioStream();
+    float amplitude = 0;
+    if(len >= 2 * ECHANTILLONS){
+      for(i = 0; i < ECHANTILLONS; i++){
+          amplitude += abs(s[i]);
+      }
+      amplitude /= 256 * (float)INT16_MAX;
+    }
     double t = gl4dhGetTicks() / 1000.0, dt = t - t0;
     t0 = t;
     for(int j = 0; j< nb_gouttes;j++){
-      gouttes[j].p.y += gouttes[j].v.y *dt;
+      gouttes[j].p.y += gouttes[j].v.y * dt * (1.0f + amplitude * 3.0f);
       if(gouttes[j].p.y <= -1.0f) {
           gouttes[j].p.y = 1.0f;
           gouttes[j].p.x = gl4dmSURand();
@@ -331,6 +344,8 @@ void pluie(int state){
     }
     return;
   default: /* GL4DH_DRAW */
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
   glUseProgram(pId);
@@ -341,7 +356,7 @@ void pluie(int state){
   for(int i = 0; i < nb_gouttes; i++) {
     gl4duPushMatrix();
     gl4duTranslatef(gouttes[i].p.x, gouttes[i].p.y, -1.0f);
-    gl4duScalef(0.01f, 0.03f, 0.01f);
+    gl4duScalef(0.005f, 0.03f, 0.005f);
     gl4duSendMatrices();
     glUniform4fv(glGetUniformLocation(pId, "color"), 1, gouttes[i].couleur);
     gl4dgDraw(drop);
@@ -350,7 +365,7 @@ void pluie(int state){
   return;
   }
 }
-
+// DEMO
 
 void animationsInit(void) {
   if(!_quadId)
