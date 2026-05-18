@@ -1,0 +1,12 @@
+Info,  T0: Load models/Flower/model.obj
+Info,  T0: Found a matching importer for this file format: Wavefront Object Importer.
+Info,  T0: Import root directory is 'models/Flower/'
+Info,  T0: Entering post processing pipeline
+Info,  T0: RemoveRedundantMatsProcess finished. Removed 0 redundant and 1 unused materials.
+Info,  T0: TriangulateProcess finished. All polygons have been triangulated.
+Info,  T0: Points: 0, Lines: 0, Triangles: 5, Polygons: 0 (Meshes, X = removed)
+Info,  T0: FindInvalidDataProcess finished. Found issues ...
+Info,  T0: CalcTangentsProcess finished. Tangents have been calculated
+Warn,  T0: Mesh 4: Not suitable for vcache optimization
+Info,  T0: Cache relevant are 4 meshes (370 faces). Average output ACMR is 2.83243
+Info,  T0: Leaving post processing pipeline

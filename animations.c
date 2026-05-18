@@ -21,6 +21,7 @@
 #include <SDL_image.h>
 
 // DEMO
+#include"assimp.h"
 #include <limits.h>
 #define ECHANTILLONS 1024
 typedef struct{
@@ -288,7 +289,6 @@ void noir(int state) {
     return;
   }
 }
-
 void pluie(int state){
   static gouttes_t * gouttes = NULL;
   static int nb_gouttes = 500;
@@ -362,6 +362,40 @@ void pluie(int state){
     gl4dgDraw(drop);
     gl4duPopMatrix();
   }
+  return;
+  }
+}
+void scene(int state){
+  static GLuint _id_scene = 0;
+  static GLuint pId = 0;
+  switch(state) {
+  case GL4DH_INIT:  
+    pId = gl4duCreateProgram("<vs>shaders/basic3d.vs", "<fs>shaders/basic3d.fs", NULL);
+    gl4duGenMatrix(GL_FLOAT, "modelViewMatrix");
+    gl4duGenMatrix(GL_FLOAT, "projectionMatrix");
+    gl4duBindMatrix("projectionMatrix");
+    gl4duLoadIdentityf();
+    gl4duFrustumf(-0.005f, 0.005f, -0.005f * 768.0f/1024.0f, 0.005f * 768.0f/1024.0f, 0.01f, 1000.0f);
+    gl4duBindMatrix("modelViewMatrix");
+    _id_scene = assimpGenScene("models/Flower/model.obj");
+    return;
+  case GL4DH_FREE:
+    return;
+  case GL4DH_UPDATE_WITH_AUDIO:
+    return;
+  default:
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glUseProgram(pId);
+    GLfloat lum[] = {0.0f, 0.0f, 5.0f, 1.0f};
+    glUniform4fv(glGetUniformLocation(pId, "lumpos"), 1, lum);
+    gl4duBindMatrix("modelViewMatrix");
+    gl4duLoadIdentityf();
+    gl4duLookAtf(0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+    gl4duRotatef(0.0f, 0.0f, 1.0f, 0.0f);
+    
+    assimpDrawScene(_id_scene);
   return;
   }
 }

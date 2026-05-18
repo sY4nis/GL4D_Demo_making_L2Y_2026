@@ -28,6 +28,7 @@ extern "C" {
   extern void titre(int state);
   extern void noir(int state);
   extern void pluie(int state);
+  extern void scene(int state);
   extern void animationsInit(void);
 
   /* wf_cube.c */

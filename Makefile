@@ -21,7 +21,7 @@ PROGNAME = rgb
 VERSION = 1.1
 distdir = $(PACKNAME)_$(PROGNAME)-$(VERSION)
 HEADERS = animations.h audioHelper.h tiny4D.h
-SOURCES = animations.c audioHelper.c window.c wf_cube.c basic_audio.c
+SOURCES = animations.c audioHelper.c window.c wf_cube.c basic_audio.c assimp.c
 MSVCSRC = $(patsubst %,<ClCompile Include=\"%\\\" \\/>,$(SOURCES))
 OBJ = $(SOURCES:.c=.o)
 DOXYFILE = documentation/Doxyfile
@@ -49,7 +49,7 @@ else
         LDFLAGS += -lGL
 endif
 CPPFLAGS += $(shell sdl2-config --cflags)
-LDFLAGS  += -lGL4Dummies $(shell sdl2-config --libs) -lSDL2_mixer -lSDL2_image
+LDFLAGS  += -lGL4Dummies $(shell sdl2-config --libs) -lSDL2_mixer -lSDL2_image -lassimp
 all: $(PROGNAME)
 $(PROGNAME): $(OBJ)
 	$(CC) $(OBJ) $(LDFLAGS) -o $(PROGNAME)
